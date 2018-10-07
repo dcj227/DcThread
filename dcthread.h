@@ -15,8 +15,8 @@ public:
     }
 
     explicit DcThread()
-            :running_(false) 
-            ,thread_id_(-1) {
+            :thread_id_(-1)
+            ,running_(false) {
         pthread_attr_init(&thread_attr_);
     }
 
@@ -26,26 +26,28 @@ public:
     }
 
     int Start() {
-         
         if (pthread_create(&thread_id_, &thread_attr_, DcThread::ThreadFunc, static_cast<void*>(this)) != 0) {
             return -1;
-       }
+        }
         running_ = true;
+
         return 0;
     }
 
     bool IsRunning() { return running_; }
 
     int Stop() {
-        running_ = false;
-
-        pthread_join(thread_id_, NULL);
+        if (running_) {
+            running_ = false;
+            pthread_join(thread_id_, NULL);
+        }
     }
 
 protected:
     virtual void Run() = 0;
 
 private:
+
     pthread_t thread_id_;
     pthread_attr_t thread_attr_;
 
